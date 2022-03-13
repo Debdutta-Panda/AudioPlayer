@@ -3,7 +3,6 @@ package com.algogence.audioplayer
 import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Paint
-import android.graphics.Rect
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.media.audiofx.Visualizer
@@ -11,20 +10,20 @@ import android.media.audiofx.Visualizer.OnDataCaptureListener
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import com.algogence.audioplayer.ui.theme.AudioPlayerTheme
+import com.algogence.audioplayer.visualizer.LineVisualizer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -128,7 +127,8 @@ class MainActivity : ComponentActivity() {
         }
 
         private fun setupVisualizer() {
-            visualizer = mediaPlayer?.audioSessionId?.let { Visualizer(it) }
+            setExternalVisualizer()
+            /*visualizer = mediaPlayer?.audioSessionId?.let { Visualizer(it) }
             visualizer?.enabled = false
             visualizer?.captureSize = Visualizer.getCaptureSizeRange()[1]
 
@@ -147,7 +147,12 @@ class MainActivity : ComponentActivity() {
                 }
             }, Visualizer.getMaxCaptureRate() / 2, true, false)
 
-            visualizer?.enabled = true
+            visualizer?.enabled = true*/
+        }
+
+        var lineVisualizer: LineVisualizer? = null
+        private fun setExternalVisualizer() {
+            mediaPlayer?.audioSessionId?.let { lineVisualizer?.setPlayer(it) }
         }
 
         private fun onWaveForm(bytes: ByteArray, samplingRate: Int) {
@@ -211,6 +216,10 @@ class MainActivity : ComponentActivity() {
             mediaPlayer?.seekTo((it*(mediaPlayer?.duration?:0)).toInt())
         }
     }
+    var points = FloatArray(0)
+    val strokeWidth = 2f
+    val paint = Paint()
+    var vi: LineVisualizer? = null
     @OptIn(ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -281,39 +290,23 @@ class MainActivity : ComponentActivity() {
                             Text("/")
                             Text(totalTime.value.toString())
                         }
-                        val points = remember {
-                            mutableStateOf<FloatArray>(FloatArray(0))
-                        }
-                        val strokeWidth = 2f
-                        val paint = remember { Paint()}
-                        Canvas(
-                            modifier = Modifier.size(100.dp),
-                            contentDescription = ""
-                        ){
+                        AndroidView(
+                            modifier = Modifier.size(100.dp), // Occupy the max size in the Compose UI tree
+                            factory = { context ->
+                                LineVisualizer(context).apply {
+                                    vi = this
+                                    Log.d("fdfdfdfdffdfd","456")
+                                    layoutParams = ViewGroup.LayoutParams(
+                                        ViewGroup.LayoutParams.MATCH_PARENT,
+                                        ViewGroup.LayoutParams.MATCH_PARENT,
+                                    )
 
-                            drawContext.canvas.nativeCanvas.apply {
-                                val bytes = waveForm.value
-                                if (bytes != null) {
-                                    if (points == null || points.value.size < bytes.size * 4) {
-                                        points.value = FloatArray(bytes.size * 4)
-                                    }
-                                    paint.setStrokeWidth(getHeight() * strokeWidth)
-                                    val rect = Rect()
-                                    rect.set(0, 0, getWidth(), getHeight())
-                                    for (i in 0 until bytes.size - 1) {
-                                        points.value[i * 4] = (rect.width() * i / (bytes.size - 1)).toFloat()
-                                        points.value[i * 4 + 1] = ((rect.height() / 2).toFloat()
-                                                + (bytes.get(i) + 128).toByte() * (rect.height() / 3) / 128)
-                                        points.value[i * 4 + 2] =
-                                            (rect.width() * (i + 1) / (bytes.size - 1)).toFloat()
-                                        points.value[i * 4 + 3] = ((rect.height() / 2
-                                                + (bytes.get(i + 1) + 128).toByte() * (rect.height() / 3) / 128)).toFloat()
-                                    }
-                                    drawLines(points.value, paint)
                                 }
-                            }
+                            },
+                            update = { view ->
 
-                        }
+                            }
+                        )
                     }
                 }
             }
@@ -363,6 +356,7 @@ class MainActivity : ComponentActivity() {
             return
         }
         audioPlayer.play("https://app.learnpea.com/public/Teri-Chahat-Ke-Deewane.mp3")
+        audioPlayer.lineVisualizer = vi
         audioPlayer.removeListeners()
         audioPlayer.addListener {
             audioProgress.value = it.progressFactor

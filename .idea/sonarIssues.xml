@@ -18,6 +18,46 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/algogence/audioplayer/visualizer/BarVisualizer.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/algogence/audioplayer/visualizer/BlazingColorVisualizer.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/algogence/audioplayer/visualizer/CircleBarVisualizer.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/algogence/audioplayer/visualizer/CircleBarVisualizerSmooth.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/algogence/audioplayer/visualizer/CircleVisualizer.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/algogence/audioplayer/visualizer/LineBarVisualizer.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/algogence/audioplayer/visualizer/LineVisualizer.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/algogence/audioplayer/visualizer/SquareBarVisualizer.java">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../android-audio-visualizer/audiovisualizer/src/main/java/com/chibde/visualizer/LineVisualizer.java">
           <value>
             <set />
